@@ -132,6 +132,7 @@ type conn struct {
 	flavor             *flavor
 	logger             *slog.Logger
 	alreadyExistsCheck func(err error) bool
+	encryption         *encryptionService
 }
 
 func (c *conn) Close() error {
