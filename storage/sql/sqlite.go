@@ -45,11 +45,18 @@ func (s *SQLite3) open(logger *slog.Logger) (*conn, error) {
 		return sqlErr.ExtendedCode == sqlite3.ErrConstraintPrimaryKey
 	}
 
+	// disabled by default in sqlite
+	encryptionSvc, err := newEncryptionService(nil, false, logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize encryption: %v", err)
+	}
+
 	c := &conn{
 		db:                 db,
 		flavor:             &flavorSQLite3,
 		logger:             logger,
 		alreadyExistsCheck: errCheck,
+		encryption:         encryptionSvc,
 	}
 	if _, err := c.migrate(); err != nil {
 		return nil, fmt.Errorf("failed to perform migrations: %v", err)

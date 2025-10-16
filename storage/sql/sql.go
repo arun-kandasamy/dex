@@ -196,3 +196,7 @@ func (t *trans) QueryRow(query string, args ...interface{}) *sql.Row {
 	query = t.c.flavor.translate(query)
 	return t.tx.QueryRow(query, t.c.translateArgs(args)...)
 }
+
+func (t *trans) getEncryption() *encryptionService {
+	return t.c.encryption
+}
