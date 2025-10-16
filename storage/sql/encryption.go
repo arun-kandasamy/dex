@@ -15,13 +15,13 @@ type encryptionService struct {
 	encryptor       *fernetEncryptor
 	enabled         bool
 	logger          *slog.Logger
-	sensitiveFields map[string][]string // Cache: connectorType -> fieldNames
+	sensitiveFields map[string][]string
 }
 
 // fernetEncryptor wraps Fernet encryption with support for key rotation
 type fernetEncryptor struct {
-	primaryKey *fernet.Key   // Used for new encryptions
-	allKeys    []*fernet.Key // Used for decryption (supports rotation)
+	primaryKey *fernet.Key
+	allKeys    []*fernet.Key
 }
 
 // newEncryptionService creates a new encryption service for SQL storage

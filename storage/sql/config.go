@@ -214,6 +214,14 @@ func (p *Postgres) open(logger *slog.Logger) (*conn, error) {
 	if _, err := c.migrate(); err != nil {
 		return nil, fmt.Errorf("failed to perform migrations: %v", err)
 	}
+
+	if encSvc.IsEnabled() {
+		logger.Info("checking for unencrypted connectors to migrate")
+		if err := c.migrateUnencryptedConnectors(); err != nil {
+			logger.Warn("connector encryption migration had errors", "error", err)
+			// Don't fail startup - log and continue
+		}
+	}
 	return c, nil
 }
 
