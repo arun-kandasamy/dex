@@ -301,7 +301,7 @@ var migrations = []migration{
 }
 
 // migrateUnencryptedConnectors encrypts any existing unencrypted connector configs
-// This runs automatically on startup when encryption is enabled
+// This is called when a new storage is created at startup and when encryption is enabled
 func (c *conn) migrateUnencryptedConnectors() error {
 	if !c.encryption.IsEnabled() {
 		return nil

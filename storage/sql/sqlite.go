@@ -16,7 +16,8 @@ import (
 // SQLite3 options for creating an SQL db.
 type SQLite3 struct {
 	// File to
-	File string `json:"file"`
+	File       string           `json:"file"`
+	Encryption EncryptionConfig `json:"encryption" yaml:"encryption"`
 }
 
 // Open creates a new storage implementation backed by SQLite3
@@ -45,10 +46,9 @@ func (s *SQLite3) open(logger *slog.Logger) (*conn, error) {
 		return sqlErr.ExtendedCode == sqlite3.ErrConstraintPrimaryKey
 	}
 
-	// disabled by default in sqlite
-	encryptionSvc, err := newEncryptionService(nil, false, logger)
+	encryptionSvc, err := setupEncryption(&s.Encryption, logger)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize encryption: %v", err)
+		return nil, fmt.Errorf("encryption setup failed: %v", err)
 	}
 
 	c := &conn{
@@ -58,8 +58,20 @@ func (s *SQLite3) open(logger *slog.Logger) (*conn, error) {
 		alreadyExistsCheck: errCheck,
 		encryption:         encryptionSvc,
 	}
+
+	// Register connector types with encryption service
+	c.registerConnectorEncryption()
+
 	if _, err := c.migrate(); err != nil {
 		return nil, fmt.Errorf("failed to perform migrations: %v", err)
+	}
+
+	if encryptionSvc.IsEnabled() {
+		logger.Info("checking for unencrypted connectors to migrate")
+		if err := c.migrateUnencryptedConnectors(); err != nil {
+			logger.Warn("connector encryption migration had errors", "error", err)
+			// Don't fail startup - log and continue
+		}
 	}
 	return c, nil
 }
