@@ -208,9 +208,6 @@ func (p *Postgres) open(logger *slog.Logger) (*conn, error) {
 
 	c := &conn{db, &flavorPostgres, logger, errCheck, encSvc}
 
-	// Register connector types with encryption service
-	c.registerConnectorEncryption()
-
 	if _, err := c.migrate(); err != nil {
 		return nil, fmt.Errorf("failed to perform migrations: %v", err)
 	}
@@ -330,18 +327,11 @@ func (s *MySQL) open(logger *slog.Logger) (*conn, error) {
 			sqlErr.Number == mysqlErrDupEntryWithKeyName
 	}
 
-	// disabled by default in mysql
-	encryptionSvc, err := newEncryptionService(nil, false, logger)
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize encryption: %v", err)
-	}
-
 	c := &conn{
 		db:                 db,
 		flavor:             &flavorSQLite3,
 		logger:             logger,
 		alreadyExistsCheck: errCheck,
-		encryption:         encryptionSvc,
 	}
 
 	if _, err := c.migrate(); err != nil {

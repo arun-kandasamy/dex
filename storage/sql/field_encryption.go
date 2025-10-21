@@ -220,13 +220,3 @@ func discoverSensitiveFields(configStruct interface{}) []string {
 
 	return fields
 }
-
-// hasSensitiveFields checks if a connector type has any sensitive fields registered
-func (svc *encryptionService) hasSensitiveFields(connectorType string) bool {
-	if !svc.enabled {
-		return false
-	}
-
-	fields, ok := svc.sensitiveFields[connectorType]
-	return ok && len(fields) > 0
-}

@@ -59,9 +59,6 @@ func (s *SQLite3) open(logger *slog.Logger) (*conn, error) {
 		encryption:         encryptionSvc,
 	}
 
-	// Register connector types with encryption service
-	c.registerConnectorEncryption()
-
 	if _, err := c.migrate(); err != nil {
 		return nil, fmt.Errorf("failed to perform migrations: %v", err)
 	}

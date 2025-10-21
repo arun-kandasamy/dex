@@ -5,6 +5,20 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/dexidp/dex/connector/atlassiancrowd"
+	"github.com/dexidp/dex/connector/bitbucketcloud"
+	"github.com/dexidp/dex/connector/gitea"
+	"github.com/dexidp/dex/connector/github"
+	"github.com/dexidp/dex/connector/gitlab"
+	"github.com/dexidp/dex/connector/google"
+	"github.com/dexidp/dex/connector/keystone"
+	"github.com/dexidp/dex/connector/ldap"
+	"github.com/dexidp/dex/connector/linkedin"
+	"github.com/dexidp/dex/connector/microsoft"
+	"github.com/dexidp/dex/connector/oauth"
+	"github.com/dexidp/dex/connector/oidc"
+	"github.com/dexidp/dex/connector/openshift"
+	"github.com/dexidp/dex/connector/saml"
 	"github.com/fernet/fernet-go"
 )
 
@@ -47,6 +61,9 @@ func newEncryptionService(keys []string, enabled bool, logger *slog.Logger) (*en
 	}
 
 	svc.encryptor = encryptor
+	// Auto-register all connectors when encryption is enabled
+	svc.registerConnectors()
+
 	logger.Info("connector field encryption enabled", "key_count", len(keys))
 	return svc, nil
 }
@@ -122,4 +139,21 @@ func isEncrypted(value string) bool {
 // IsEnabled returns whether encryption is enabled
 func (svc *encryptionService) IsEnabled() bool {
 	return svc.enabled
+}
+
+func (svc *encryptionService) registerConnectors() {
+	svc.registerConnectorType("atlassian-crowd", atlassiancrowd.Config{})
+	svc.registerConnectorType("bitbucket-cloud", bitbucketcloud.Config{})
+	svc.registerConnectorType("gitea", gitea.Config{})
+	svc.registerConnectorType("github", github.Config{})
+	svc.registerConnectorType("gitlab", gitlab.Config{})
+	svc.registerConnectorType("google", google.Config{})
+	svc.registerConnectorType("keystone", keystone.Config{})
+	svc.registerConnectorType("ldap", ldap.Config{})
+	svc.registerConnectorType("linkedin", linkedin.Config{})
+	svc.registerConnectorType("microsoft", microsoft.Config{})
+	svc.registerConnectorType("oauth", oauth.Config{})
+	svc.registerConnectorType("oidc", oidc.Config{})
+	svc.registerConnectorType("openshift", openshift.Config{})
+	svc.registerConnectorType("saml", saml.Config{})
 }

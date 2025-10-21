@@ -10,9 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dexidp/dex/connector/ldap"
-	"github.com/dexidp/dex/connector/oidc"
-	"github.com/dexidp/dex/connector/saml"
 	"github.com/dexidp/dex/storage"
 )
 
@@ -1101,16 +1098,4 @@ func (c *conn) UpdateDeviceToken(ctx context.Context, deviceCode string, updater
 		}
 		return nil
 	})
-}
-
-func (c *conn) registerConnectorEncryption() {
-	if c.encryption == nil || !c.encryption.IsEnabled() {
-		return
-	}
-
-	c.encryption.registerConnectorType("ldap", ldap.Config{})
-	c.encryption.registerConnectorType("oidc", oidc.Config{})
-	c.encryption.registerConnectorType("saml", saml.Config{})
-
-	c.logger.Info("registered connector types for field encryption")
 }
